@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VidaPositiva.Api", "VidaPositiva.Api\VidaPositiva.Api.csproj", "{F85028F1-8BED-41C7-AFE9-CF3E9AA49016}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VidaPositiva.UnitTests", "Tests\VidaPositiva.UnitTests\VidaPositiva.UnitTests.csproj", "{6553ADFD-9BA7-4379-8C52-2E36C2BE0E39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VidaPositiva.Migrations", "VidaPositiva.Migrations\VidaPositiva.Migrations.csproj", "{1F7DF196-79DF-4BFA-A24D-2F89950F412E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F85028F1-8BED-41C7-AFE9-CF3E9AA49016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F85028F1-8BED-41C7-AFE9-CF3E9AA49016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F85028F1-8BED-41C7-AFE9-CF3E9AA49016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F85028F1-8BED-41C7-AFE9-CF3E9AA49016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6553ADFD-9BA7-4379-8C52-2E36C2BE0E39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6553ADFD-9BA7-4379-8C52-2E36C2BE0E39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6553ADFD-9BA7-4379-8C52-2E36C2BE0E39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6553ADFD-9BA7-4379-8C52-2E36C2BE0E39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F7DF196-79DF-4BFA-A24D-2F89950F412E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F7DF196-79DF-4BFA-A24D-2F89950F412E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F7DF196-79DF-4BFA-A24D-2F89950F412E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F7DF196-79DF-4BFA-A24D-2F89950F412E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
