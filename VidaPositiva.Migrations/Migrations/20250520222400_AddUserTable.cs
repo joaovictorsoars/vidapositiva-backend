@@ -15,9 +15,10 @@ public class AddUserTable : Migration {
             .WithColumn("name").AsString(255).NotNullable()
             .WithColumn("google_id").AsString(255).Nullable()
             .WithColumn("public_id").AsString(255).NotNullable().WithDefaultValue("(gen_random_uuid())")
-            .WithColumn("last_login").AsDateTime().NotNullable()
-            .WithColumn("created_at").AsDateTime().NotNullable().WithDefaultValue(SystemMethods.CurrentDateTime)
-            .WithColumn("updated_at").AsDateTime().NotNullable().WithDefaultValue(SystemMethods.CurrentDateTime);
+            .WithColumn("picture_url").AsString(255).Nullable()
+            .WithColumn("last_login").AsCustom("timestamp with time zone").NotNullable()
+            .WithColumn("created_at").AsCustom("timestamp with time zone").NotNullable().WithDefaultValue(SystemMethods.CurrentDateTime)
+            .WithColumn("updated_at").AsCustom("timestamp with time zone").NotNullable().WithDefaultValue(SystemMethods.CurrentDateTime);
     }
 
     public override void Down()

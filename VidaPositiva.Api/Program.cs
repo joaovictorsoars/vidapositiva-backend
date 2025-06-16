@@ -7,6 +7,11 @@ using VidaPositiva.Api.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Migrations.Migrations;
+using VidaPositiva.Api.Entities;
+using VidaPositiva.Api.OAuth.Constants;
+using VidaPositiva.Api.Persistence.Repository;
+using VidaPositiva.Api.Persistence.UnitOfWork;
+using VidaPositiva.Api.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,12 +55,17 @@ builder.Services
     .AddCookie(options =>
     {
         options.Cookie.HttpOnly = true;
-        options.Cookie.Name = "AuthCookie";
+        options.Cookie.Name = CookiesConstants.AccessCookieName;
         options.Cookie.SameSite = SameSiteMode.None;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     })
     .AddGoogleOAuth();
 #endregion
+
+builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
@@ -64,6 +74,16 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+
+app.UseCors(policy =>
+{
+    policy
+        .WithOrigins("http://localhost:4200")
+        .AllowAnyHeader()
+        .WithMethods("GET", "POST", "PUT", "DELETE")
+        .AllowCredentials();
+});
 
 app.UseHttpsRedirection();
 
@@ -75,7 +95,6 @@ app.UseAuthorization();
 using var scope = app.Services.CreateScope();
 var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
 runner.MigrateUp();
-
 
 app.MapControllers();
 
