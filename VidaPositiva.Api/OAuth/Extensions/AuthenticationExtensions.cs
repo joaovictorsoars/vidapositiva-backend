@@ -1,5 +1,10 @@
+using System.Security.Claims;
 using Google.Apis.Auth.AspNetCore3;
 using Microsoft.AspNetCore.Authentication;
+using VidaPositiva.Api.DTOs.Outputs.User;
+using VidaPositiva.Api.Entities;
+using VidaPositiva.Api.OAuth.Enums;
+using VidaPositiva.Api.Services.UserService;
 
 namespace VidaPositiva.Api.OAuth.Extensions;
 

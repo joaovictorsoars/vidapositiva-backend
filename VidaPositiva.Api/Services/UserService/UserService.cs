@@ -48,6 +48,13 @@ public class UserService(
         });
     }
 
+    public async Task<Option<User>> GetUserByEmail(string? email, CancellationToken cancellationToken = default)
+    {
+        var user = await userRepository.Query().FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+
+        return Option<User>.FromNullable(user);
+    }
+
     private async Task<User> CreateUserByGoogleUserId(UserCreationInputDto userDto, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;

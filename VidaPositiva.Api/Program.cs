@@ -11,6 +11,8 @@ using VidaPositiva.Api.Entities;
 using VidaPositiva.Api.OAuth.Constants;
 using VidaPositiva.Api.Persistence.Repository;
 using VidaPositiva.Api.Persistence.UnitOfWork;
+using VidaPositiva.Api.Services.CategoryService;
+using VidaPositiva.Api.Services.PoteService;
 using VidaPositiva.Api.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,10 +64,18 @@ builder.Services
     .AddGoogleOAuth();
 #endregion
 
+#region Repositories
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
+builder.Services.AddScoped<IRepository<Pote>, Repository<Pote>>();
+builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
+#endregion
 
+#region Services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPoteService, PoteService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+#endregion
 
 var app = builder.Build();
 

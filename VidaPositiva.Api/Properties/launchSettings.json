@@ -9,7 +9,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "GOOGLE_OAUTH_CLIENT_ID": "",
-        "GOOGLE_OAUTH_CLIENT_SECRET": ""
+        "GOOGLE_OAUTH_CLIENT_SECRET": "",
+        "VIDA_POSITIVA_FRONTEND_URL": ""
       }
     },
     "https": {
@@ -20,7 +21,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "GOOGLE_OAUTH_CLIENT_ID": "",
-        "GOOGLE_OAUTH_CLIENT_SECRET": ""
+        "GOOGLE_OAUTH_CLIENT_SECRET": "",
+        "VIDA_POSITIVA_FRONTEND_URL": "http://localhost:4200"
       }
     }
   }

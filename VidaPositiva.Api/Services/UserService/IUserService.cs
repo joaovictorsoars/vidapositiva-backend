@@ -9,6 +9,7 @@ namespace VidaPositiva.Api.Services.UserService;
 public interface IUserService
 {
     Task<User> SignInWithGoogle(UserCreationInputDto userDto, CancellationToken cancellationToken = default);
+    Task<Option<User>> GetUserByEmail(string? email, CancellationToken cancellationToken = default);
 
     Task<Either<ValidationError, UserInfoOutputDto>> GetByGoogleUserId(string? userId, CancellationToken cancellationToken = default);
 }

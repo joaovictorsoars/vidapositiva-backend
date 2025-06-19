@@ -82,8 +82,10 @@ public class AuthController(IUserService userService) : ControllerBase
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
+        
+        var frontendUrl = Environment.GetEnvironmentVariable("VIDA_POSITIVA_FRONTEND_URL");
     
-        return Redirect(authenticateResult.Properties.Items["returnUrl"]!);
+        return Redirect(frontendUrl + authenticateResult.Properties.Items["returnUrl"]!);
     }
     
     [HttpGet("refresh")]
@@ -166,11 +168,21 @@ public class AuthController(IUserService userService) : ControllerBase
     
     [Authorize]
     [HttpGet("validate")]
-    public IActionResult Validate()
+    public async Task<IActionResult> Validate(CancellationToken cancellationToken)
     {
         var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
 
         if (!isAuthenticated)
+            return new ValidationError
+            {
+                Code = "user_not_authenticated",
+                HttpCode = 401,
+                Message = "Não autenticado."
+            }.AsActionResult();
+        
+        var userExists = await userService.GetByGoogleUserId(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, cancellationToken);
+        
+        if (userExists.IsLeft)
             return new ValidationError
             {
                 Code = "user_not_authenticated",
