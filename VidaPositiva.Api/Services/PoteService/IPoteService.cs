@@ -7,7 +7,7 @@ namespace VidaPositiva.Api.Services.PoteService;
 
 public interface IPoteService
 {
-    Task<Option<Pote>> GetById(int id, CancellationToken cancellationToken = default);
+    Task<Either<ValidationError, Pote>> GetById(int id, CancellationToken cancellationToken = default);
 
     Task<IList<Pote>> GetAll(CancellationToken cancellationToken = default);
 

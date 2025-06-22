@@ -13,11 +13,21 @@ public class CategoryService(
     IRepository<Category> repository,
     IUnitOfWork unitOfWork) : ICategoryService
 {
-    public async Task<Option<Category>> GetById(int id, CancellationToken cancellationToken = default)
+    public async Task<Either<ValidationError, Category>> GetById(int id, CancellationToken cancellationToken = default)
     {
         var category = await repository.Query().FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        if (category == null)
+        {
+            return Either<ValidationError, Category>.FromLeft(new ValidationError
+            {
+                Code = "category_not_found",
+                HttpCode = 404,
+                Message = "Categoria não encontrada."
+            });
+        }
         
-        return Option<Category>.FromNullable(category);
+        return Either<ValidationError, Category>.FromRight(category);
     }
 
     public async Task<IList<Category>> GetAll(CancellationToken cancellationToken = default)
@@ -54,14 +64,20 @@ public class CategoryService(
             });
         }
         
-        var categoryExists =  await repository.Query().AnyAsync(p => p.Name.ToUpper() == normalizedDto.Name.ToUpper(), cancellationToken);
+        var categoryExists =  await repository
+            .Query()
+            .AnyAsync(p => p.Name.ToUpper() == normalizedDto.Name.ToUpper() && p.UserId == userId && ((p.PoteId != null && p.PoteId == normalizedDto.PoteId) || (p.ParentId != null && p.ParentId == normalizedDto.ParentCategoryId)), cancellationToken);
         
         if (categoryExists)
-            return Either<ValidationError, int>.FromLeft(new ValidationError
+            return Either<ValidationError, int>.FromLeft(new FieldValidationError
             {
-                Code = "category_exists",
                 HttpCode = 409,
-                Message = "A categoria já existe."
+                FieldErrors = [
+                    new FieldError 
+                    { 
+                        Field = "name", 
+                        Message = "Essa categoria já existe. Escolha outro nome."
+                    }]
             });
 
         var pote = Category.FromDto(normalizedDto, userId);

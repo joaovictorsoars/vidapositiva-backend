@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace VidaPositiva.Api.ValueObjects.Validation;
 
-public sealed record ValidationError
+public record ValidationError
 {
     public string Code { get; init; } = null!;
     public int HttpCode { get; init; } = 400;
     public string Message { get; init; } = null!;
 
-    public object GetActionResultPayload()
+    public virtual object GetActionResultPayload()
     {
         return new
         {

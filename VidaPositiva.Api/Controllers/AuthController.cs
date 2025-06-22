@@ -42,7 +42,11 @@ public class AuthController(IUserService userService) : ControllerBase
         var authenticateResult = await HttpContext.AuthenticateAsync(authenticationScheme);
     
         if (!authenticateResult.Succeeded || authenticateResult.Properties.Items.All(item => item.Key != "returnUrl"))
-            return Unauthorized(new { Message = "Falha na autenticação" });
+            return new ValidationError
+            {
+                HttpCode = 401,
+                Message = "The returnUrl parameter is incorrect",
+            }.AsActionResult();
         
         var userId = authenticateResult.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     

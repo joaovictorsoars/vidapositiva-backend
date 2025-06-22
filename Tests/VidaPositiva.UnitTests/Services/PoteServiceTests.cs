@@ -51,11 +51,11 @@ public class PoteServiceTests
     {
         var poteId = _initialPote.Id;
         
-        var pote = await _poteService.GetById(poteId);
+        var result = await _poteService.GetById(poteId);
 
-        Assert.False(pote.IsNone);
-        Assert.True(pote.IsSome);
-        Assert.Equal(poteId, pote.Value.Id);
+        Assert.False(result.IsLeft);
+        Assert.True(result.IsRight);
+        Assert.Equal(poteId, result.Right!.Id);
     }
 
     [Fact]
@@ -63,10 +63,11 @@ public class PoteServiceTests
     {
         var poteId = 2;
         
-        var pote = await _poteService.GetById(poteId);
+        var result = await _poteService.GetById(poteId);
         
-        Assert.False(pote.IsSome);
-        Assert.True(pote.IsNone);
+        Assert.False(result.IsRight);
+        Assert.True(result.IsLeft);
+        Assert.IsType<ValidationError>(result.Left);
     }
 
     [Fact]

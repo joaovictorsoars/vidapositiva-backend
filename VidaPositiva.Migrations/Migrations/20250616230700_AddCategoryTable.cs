@@ -12,7 +12,7 @@ public class AddCategoryTable : Migration {
             .Table(TableName)
             .WithColumn("category_id").AsInt32().NotNullable().PrimaryKey("pk_categories").Identity()
             .WithColumn("name").AsString(150).NotNullable()
-            .WithColumn("description").AsString(500).NotNullable()
+            .WithColumn("description").AsString(500).Nullable()
             .WithColumn("picture_url").AsString(255).Nullable()
             .WithColumn("parent_id").AsInt32().Nullable()
             .WithColumn("pote_id").AsInt32().Nullable()

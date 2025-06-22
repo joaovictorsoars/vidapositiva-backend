@@ -7,7 +7,7 @@ namespace VidaPositiva.Api.Services.CategoryService;
 
 public interface ICategoryService
 {
-    Task<Option<Category>> GetById(int id, CancellationToken cancellationToken = default);
+    Task<Either<ValidationError, Category>> GetById(int id, CancellationToken cancellationToken = default);
     
     Task<IList<Category>> GetAll(CancellationToken cancellationToken = default);
     

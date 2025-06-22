@@ -13,11 +13,19 @@ public class PoteService(
     IRepository<Pote> poteRepository,
     IUnitOfWork unitOfWork) : IPoteService
 {
-    public async Task<Option<Pote>> GetById(int id, CancellationToken cancellationToken = default)
+    public async Task<Either<ValidationError, Pote>> GetById(int id, CancellationToken cancellationToken = default)
     {
-        var pote = await poteRepository.Query().FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var pote = Option<Pote>.FromNullable(await poteRepository.Query().FirstOrDefaultAsync(p => p.Id == id, cancellationToken));
         
-        return Option<Pote>.FromNullable(pote);
+        if (pote.IsNone)
+            return Either<ValidationError, Pote>.FromLeft(new ValidationError
+            {
+                Code = "pote_not_found",
+                HttpCode = 404,
+                Message = "Pote não encontrado."
+            });
+        
+        return Either<ValidationError, Pote>.FromRight(pote.Value);
     }
 
     public async Task<IList<Pote>> GetAll(CancellationToken cancellationToken = default)
