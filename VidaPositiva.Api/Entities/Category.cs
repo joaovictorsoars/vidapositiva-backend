@@ -7,15 +7,14 @@ namespace VidaPositiva.Api.Entities;
 [Table("categories")]
 public class Category
 {
-    public static Category FromDto(CategoryCreationInputDto poteDto, int userId)
+    public static Category FromDto(CategoryCreationInputDto categoryDto, int userId)
     {
         return new Category
         {
-            Name = poteDto.Name,
-            Description = poteDto.Description,
-            PictureUrl = poteDto.PictureUrl,
-            ParentId = poteDto.ParentCategoryId,
-            PoteId = poteDto.PoteId,
+            Name = categoryDto.Name,
+            Description = categoryDto.Description,
+            ParentId = categoryDto.ParentCategoryId,
+            PoteId = categoryDto.PoteId,
             UserId = userId
         };
     }
@@ -32,10 +31,6 @@ public class Category
     [MaxLength(500)]
     public string? Description { get; set; }
     
-    [Column("picture_url")]
-    [MaxLength(255)]
-    public string? PictureUrl { get; set; }
-    
     [Column("parent_id")]
     public int? ParentId { get; set; }
     
@@ -46,4 +41,6 @@ public class Category
     public int? UserId { get; set; }
 
     [ForeignKey(nameof(PoteId))] public Pote? Pote { get; set; }
+    
+    [ForeignKey(nameof(ParentId))] public Category? ParentCategory { get; set; }
 }

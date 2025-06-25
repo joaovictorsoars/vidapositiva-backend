@@ -13,9 +13,32 @@ public class CategoryService(
     IRepository<Category> repository,
     IUnitOfWork unitOfWork) : ICategoryService
 {
-    public async Task<Either<ValidationError, Category>> GetById(int id, CancellationToken cancellationToken = default)
+    public async Task<Either<ValidationError, Category>> GetById(int id, int userId, CancellationToken cancellationToken = default)
     {
-        var category = await repository.Query().FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var category = await repository
+            .Query()
+            .Include(c => c.Pote)
+            .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId && p.ParentId == null, cancellationToken);
+
+        if (category == null)
+        {
+            return Either<ValidationError, Category>.FromLeft(new ValidationError
+            {
+                Code = "category_not_found",
+                HttpCode = 404,
+                Message = "Categoria não encontrada."
+            });
+        }
+        
+        return Either<ValidationError, Category>.FromRight(category);
+    }
+    
+    public async Task<Either<ValidationError, Category>> GetSubCategoryById(int id, int userId, CancellationToken cancellationToken = default)
+    {
+        var category = await repository
+            .Query()
+            .Include(c => c.ParentCategory)
+            .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId && p.PoteId == null, cancellationToken);
 
         if (category == null)
         {
@@ -42,17 +65,61 @@ public class CategoryService(
             .OrderBy(c => c.Name)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<IList<Category>> GetByParentCategoryId(int parentCategoryId, int userId, CancellationToken cancellationToken = default)
+    {
+        return await repository.Query()
+            .Where(c => c.ParentId == parentCategoryId && (c.UserId == null || c.UserId == userId))
+            .OrderBy(c => c.Name)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<Either<ValidationError, int>> Edit(CategoryEditInputDto categoryDto, int userId, CancellationToken cancellationToken = default)
+    {
+        var normalizedDto = categoryDto with { Name = categoryDto.Name.NormalizeWhitespaces(), Description = categoryDto.Description?.NormalizeWhitespaces() };
+        
+        var category = await repository.Query().FirstOrDefaultAsync(c => c.Id == categoryDto.CategoryId && c.UserId == userId, cancellationToken);
+        
+        if (category == null)
+            return Either<ValidationError, int>.FromLeft(new ValidationError
+            {
+                Code = "category_not_found",
+                HttpCode = 404,
+                Message = "A categoria não foi encontrada."
+            });
+        
+        var categoryExists =  await repository
+            .Query()
+            .AnyAsync(c => c.Name.ToUpper() == normalizedDto.Name.ToUpper() && c.UserId == userId && c.Id != normalizedDto.CategoryId, cancellationToken);
+        
+        if (categoryExists)
+            return Either<ValidationError, int>.FromLeft(new FieldValidationError
+            {
+                HttpCode = 409,
+                FieldErrors = [
+                    new FieldError 
+                    { 
+                        Field = "name", 
+                        Message = "Essa categoria já existe. Escolha outro nome."
+                    }]
+            });
+        
+        category.Name = normalizedDto.Name;
+        category.Description = normalizedDto.Description;
+        
+        var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        repository.Update(category);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return Either<ValidationError, int>.FromRight(category.Id);
+    }
 
     public async Task<Either<ValidationError, int>> Create(CategoryCreationInputDto categoryDto, int userId, CancellationToken cancellationToken = default)
     {
-        var normalizedDto = new CategoryCreationInputDto
-        {
-            Name = categoryDto.Name.NormalizeWhitespaces(),
-            Description = categoryDto.Description?.NormalizeWhitespaces(),
-            PictureUrl = categoryDto.PictureUrl?.NormalizeWhitespaces(),
-            ParentCategoryId = categoryDto.ParentCategoryId,
-            PoteId = categoryDto.PoteId,
-        };
+        var normalizedDto = categoryDto with { Name = categoryDto.Name.NormalizeWhitespaces(), Description = categoryDto.Description?.NormalizeWhitespaces() };
 
         if (normalizedDto.PoteId == null && normalizedDto.ParentCategoryId == null)
         {
