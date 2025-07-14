@@ -158,4 +158,31 @@ public class CategoryService(
 
         return Either<ValidationError, int>.FromRight(pote.Id);
     }
+
+    public async Task<Either<ValidationError, int>> ToggleFavoriteCategory(int categoryId, int userId, CancellationToken cancellationToken = default)
+    {
+        var category = await repository.Query().FirstOrDefaultAsync(c => c.Id == categoryId && c.UserId == userId, cancellationToken);
+
+        if (category is null)
+        {
+            return Either<ValidationError, int>.FromLeft(new ValidationError
+            {
+                Code = "category_not_found",
+                HttpCode = 404,
+                Message = "Categoria não encontrada para esse usuário!"
+            });
+        }
+        
+        category.IsFavorite = !category.IsFavorite;
+        
+
+        var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+        
+        repository.Update(category);
+        
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        
+        return Either<ValidationError, int>.FromRight(category.Id);
+    }
 }

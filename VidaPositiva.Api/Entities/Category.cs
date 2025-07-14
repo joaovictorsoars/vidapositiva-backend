@@ -34,6 +34,9 @@ public class Category
     [Column("parent_id")]
     public int? ParentId { get; set; }
     
+    [Column("is_favorite")]
+    public bool IsFavorite { get; set; }
+    
     [Column("pote_id")]
     public int? PoteId { get; set; }
     

@@ -125,7 +125,28 @@ public class CategoryController(ICategoryService service, IUserService userServi
 
         return result.Fold(
             l => l.AsActionResult(),
-            r => Created("Categoria criada com sucesso!", new { Id = r })
+            r => new ObjectResult(new { Id = r }) 
+            { 
+                StatusCode = StatusCodes.Status201Created 
+            }
+        );
+    }
+
+    [HttpPut("toggle-favorite-category/{categoryId:int}")]
+    public async Task<IActionResult> ToggleFavoriteCategory([FromRoute] int categoryId, CancellationToken cancellationToken)
+    {
+        var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+        var user = await userService.GetUserByEmail(email, cancellationToken);
+
+        if (user.IsNone)
+            return Unauthorized();
+        
+        var result = await service.ToggleFavoriteCategory(categoryId, user.Value.Id, cancellationToken);
+
+        return result.Fold(
+            l => l.AsActionResult(),
+            _ => NoContent()
         );
     }
 }

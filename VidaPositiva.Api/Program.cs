@@ -13,6 +13,7 @@ using VidaPositiva.Api.Persistence.Repository;
 using VidaPositiva.Api.Persistence.UnitOfWork;
 using VidaPositiva.Api.Services.CategoryService;
 using VidaPositiva.Api.Services.PoteService;
+using VidaPositiva.Api.Services.TransactionService;
 using VidaPositiva.Api.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,6 +69,7 @@ builder.Services
 builder.Services.AddScoped<IRepository<User>, Repository<User>>();
 builder.Services.AddScoped<IRepository<Pote>, Repository<Pote>>();
 builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
+builder.Services.AddScoped<IRepository<Transaction>, Repository<Transaction>>();
 #endregion
 
 #region Services
@@ -75,6 +77,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPoteService, PoteService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 #endregion
 
 var app = builder.Build();
@@ -91,7 +94,7 @@ app.UseCors(policy =>
     policy
         .WithOrigins("http://localhost:4200")
         .AllowAnyHeader()
-        .WithMethods("GET", "POST", "PUT", "DELETE")
+        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .AllowCredentials();
 });
 

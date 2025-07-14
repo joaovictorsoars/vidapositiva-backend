@@ -24,4 +24,6 @@ public interface ICategoryService
     
     Task<Either<ValidationError, int>> Create(CategoryCreationInputDto categoryDto, int userId,
         CancellationToken cancellationToken = default);
+    
+    Task<Either<ValidationError, int>> ToggleFavoriteCategory(int categoryId, int userId, CancellationToken cancellationToken = default);
 }

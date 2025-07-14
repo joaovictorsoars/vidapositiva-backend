@@ -1,3 +1,6 @@
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+
 namespace VidaPositiva.Api.Persistence.Repository;
 
 public class Repository<T>(Context context)  : IRepository<T> where T : class
@@ -10,6 +13,11 @@ public class Repository<T>(Context context)  : IRepository<T> where T : class
     public void Add(T entity)
     {
         context.Set<T>().Add(entity);
+    }
+
+    public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        await context.Set<T>().AddAsync(entity, cancellationToken);
     }
 
     public void AddRange(IEnumerable<T> entities)
@@ -25,5 +33,11 @@ public class Repository<T>(Context context)  : IRepository<T> where T : class
     public void Remove(T entity)
     {
         context.Set<T>().Remove(entity);
+    }
+
+    public async Task RemoveByCondition(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        var condition = await context.Set<T>().Where(predicate).ToListAsync(cancellationToken);
+        context.Set<T>().RemoveRange(condition);
     }
 }
