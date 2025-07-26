@@ -24,6 +24,12 @@ public class Repository<T>(Context context)  : IRepository<T> where T : class
     {
         context.Set<T>().AddRange(entities);
     }
+    
+    public async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    {
+        await context.Set<T>().AddRangeAsync(entities, cancellationToken);
+    }
+
 
     public void Update(T entity)
     {

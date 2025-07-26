@@ -8,17 +8,25 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ExcelDataReader" Version="3.7.0" />
+        <PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0" />
         <PackageReference Include="FluentMigrator" Version="7.1.0" />
         <PackageReference Include="FluentMigrator.Extensions.Postgres" Version="7.1.0" />
         <PackageReference Include="FluentMigrator.Runner" Version="7.1.0" />
         <PackageReference Include="Google.Apis.Auth.AspNetCore3" Version="1.70.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.7" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\VidaPositiva.Migrations\VidaPositiva.Migrations.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Strategies\Transaction\" />
     </ItemGroup>
 
 </Project>

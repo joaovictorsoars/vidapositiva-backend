@@ -11,4 +11,11 @@ public interface ITransactionService
 {
     Task<Paginated<IList<TransactionDataOutputDto>>> List(int userId, TransactionGetAllQueryParams queryParams, CancellationToken cancellationToken = default);
     Task<Either<FieldValidationError, string>> Create(TransactionCreationInputDto input, int userId, CancellationToken cancellationToken = default);
+
+    Task<Either<FieldValidationError, string>> BulkCreate(TransactionCreationInputDto[] input, int userId,
+        CancellationToken cancellationToken = default);
+
+    Task<Either<ValidationError, (bool partiallyCategorized, IDictionary<string, IList<TransactionCreationInputDto>>
+        transactions)>> Process(IList<IFormFile> files, string connectionId, int userId,
+        CancellationToken cancellationToken = default);
 }

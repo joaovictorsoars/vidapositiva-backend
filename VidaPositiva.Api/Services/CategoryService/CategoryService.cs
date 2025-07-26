@@ -151,12 +151,35 @@ public class CategoryService(
         
         var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        repository.Add(pote);
+        await repository.AddAsync(pote, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return Either<ValidationError, int>.FromRight(pote.Id);
+    }
+
+    public async Task<Category[]> BulkCreateByName(CategoryCreationByNameInputDto[] categoryNames, int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        var categoriesToAdd = categoryNames.Select(c => new Category
+        {
+            Name = c.CategoryName,
+            UserId = userId,
+            Description = null,
+            IsFavorite = false,
+            PoteId = c.PoteId,
+            ParentId = c.ParentCategoryId
+        }).ToArray();
+        
+        await repository.AddRangeAsync(categoriesToAdd, cancellationToken);
+        
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return categoriesToAdd;
     }
 
     public async Task<Either<ValidationError, int>> ToggleFavoriteCategory(int categoryId, int userId, CancellationToken cancellationToken = default)

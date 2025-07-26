@@ -1,3 +1,4 @@
+using System.Text;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.VersionTableInfo;
 using Google.Apis.Auth.AspNetCore3;
@@ -8,10 +9,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Migrations.Migrations;
 using VidaPositiva.Api.Entities;
+using VidaPositiva.Api.Factories.Transaction.TransactionProcessFileFactory;
+using VidaPositiva.Api.Hubs;
 using VidaPositiva.Api.OAuth.Constants;
 using VidaPositiva.Api.Persistence.Repository;
 using VidaPositiva.Api.Persistence.UnitOfWork;
 using VidaPositiva.Api.Services.CategoryService;
+using VidaPositiva.Api.Services.NotificationService;
 using VidaPositiva.Api.Services.PoteService;
 using VidaPositiva.Api.Services.TransactionService;
 using VidaPositiva.Api.Services.UserService;
@@ -23,6 +27,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddSignalR();
+
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 #region DatabaseConnection
 builder.Services.AddScoped<IVersionTableMetaData, VersionTableMetaDataConfiguration>();
@@ -30,7 +37,7 @@ builder.Services.AddScoped<IVersionTableMetaData, VersionTableMetaDataConfigurat
 var connectionString = builder.Configuration.GetConnectionString("Default");
 var migrationsConnectionString = builder.Configuration.GetConnectionString("Migrations");
 
-builder.Services.AddDbContextPool<Context>(options =>
+builder.Services.AddDbContextPool<Context>((options) =>
 {
     options.UseNpgsql(connectionString);
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
@@ -78,6 +85,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPoteService, PoteService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ITransactionFileProcessorFactory, TransactionFileProcessorFactory>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 #endregion
 
 var app = builder.Build();
@@ -110,5 +119,6 @@ var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
 runner.MigrateUp();
 
 app.MapControllers();
+app.MapHub<BrokerHub>("/broker-hub");
 
 app.Run();

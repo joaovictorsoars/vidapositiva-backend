@@ -21,9 +21,9 @@ public class Transaction
             CashDate = transactionDto.CashDate,
             Amount = transactionDto.Amount,
             Installments = transactionDto.Installments,
-            PoteId = transactionDto.PoteId,
-            CategoryId = transactionDto.CategoryId,
-            SubcategoryId = transactionDto.SubCategoryId,
+            PoteId = transactionDto.PoteId!.Value,
+            CategoryId = transactionDto.CategoryId!.Value,
+            SubcategoryId = transactionDto.SubcategoryId!.Value,
             UserId = userId
         };
     }
