@@ -6,6 +6,7 @@ using VidaPositiva.Api.Configuration.FluentMigrator;
 using VidaPositiva.Api.OAuth.Extensions;
 using VidaPositiva.Api.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Migrations.Migrations;
 using VidaPositiva.Api.Entities;
@@ -51,6 +52,9 @@ builder.Services
             .ScanIn(typeof(AddUserTable).Assembly)
             .For.Migrations()
     );
+
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<Context>();
 #endregion
 
 #region OAuth
