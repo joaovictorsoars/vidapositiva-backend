@@ -113,7 +113,7 @@ app.UseForwardedHeaders();
 app.UseCors(policy =>
 {
     policy
-        .WithOrigins("http://localhost:4200")
+        .WithOrigins("http://localhost:4200", "https://joaovictorsoars.com", "https://api.joaovictorsoars.com")
         .AllowAnyHeader()
         .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .AllowCredentials();
