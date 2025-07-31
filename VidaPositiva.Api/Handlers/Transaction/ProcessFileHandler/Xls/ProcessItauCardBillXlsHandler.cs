@@ -6,34 +6,31 @@ using VidaPositiva.Api.Enums.Transaction;
 using VidaPositiva.Api.Extensions.String;
 using VidaPositiva.Api.Services.NotificationService;
 
-namespace VidaPositiva.Api.Handlers.Transaction.ProcessFileHandler.Csv;
+namespace VidaPositiva.Api.Handlers.Transaction.ProcessFileHandler.Xls;
 
-public class ProcessBradescoCardBillCsvHandler(INotificationService notificationService) : ProcessFileHandler
+public class ProcessItauCardBillXlsHandler(INotificationService notificationService) : ProcessFileHandler
 {
-    private readonly string[] _columnHeaders = ["DATA", "HISTÓRICO", "VALOR(US$)", "VALOR(R$)"];
-    private readonly string[] _termsToIgnore = ["PAGTO", "SALDO ANTERIOR"];
-    private const string DateHeaderRowFormat = "dd/MM/yyyy HH:mm:ss";
+    private readonly string[] _columnHeaders = ["DATA", "LANÇAMENTO", "VALOR"];
+    private const string ItauHeaderTerm = "LOGOTIPO ITAÚ";
     private const string DateRowFormat = "dd/MM/yyyy";
-    
+    private const string StopTerm = "TOTAL";
     public override async Task<IList<TransactionCreationInputDto>?> Handle(string fileName, string connectionId,
         DataTable request)
     {
-        var dateHeaderCell = request.Rows[0][0].ToString()?.Replace("Data:", "").Trim();
-
-        if (!DateTime.TryParseExact(dateHeaderCell, DateHeaderRowFormat, CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out var headerDate))
-        {
-            return await base.Handle(fileName, connectionId, request);
-        }
+        var logoCell = request.Rows[0][0].ToString()?.ToUpper();
         
-        var headerRow = request.Rows[5];
+        if (logoCell !=  ItauHeaderTerm)
+            return await base.Handle(fileName, connectionId, request);
+        
+        var headerRow = request.Rows[26];
+        
         var headerRowItems = headerRow.ItemArray
             .Where(i => !string.IsNullOrEmpty(i as string))
             .Select(i => i!.ToString()?.ToUpper())
             .ToArray();
         
         var hasAllHeaders = _columnHeaders.All(h => headerRowItems.Contains(h));
-
+        
         if (!hasAllHeaders)
             return await base.Handle(fileName, connectionId, request);
         
@@ -42,25 +39,33 @@ public class ProcessBradescoCardBillCsvHandler(INotificationService notification
         
         var transactions = new List<TransactionCreationInputDto>();
 
-        foreach (var (row, rowIndex) in rows.Skip(6))
+        foreach (var (row, rowIndex) in rows.Skip(26))
         {
-            var rowDayMonth = row[0].ToString();
-            var rowDateStr = $"{rowDayMonth}/{headerDate.Year}";
+            int progress;
+            var dateStr = row[0].ToString();
 
-            if (!DateTime.TryParseExact(rowDateStr, DateRowFormat, CultureInfo.InvariantCulture,
+            if (dateStr?.ToUpper().Contains(StopTerm, StringComparison.CurrentCultureIgnoreCase) == true)
+            {
+                progress = 90;
+                await notificationService.NotifyProgressAsync(connectionId,
+                    new ProcessFileProgress(fileName, progress, "PROCESSING"));
+                break;
+            }
+
+            if (!DateTime.TryParseExact(dateStr, DateRowFormat, CultureInfo.InvariantCulture,
                     DateTimeStyles.None, out var date))
                 continue;
 
             var title = row[1].ToString();
 
-            if (title is null || _termsToIgnore.Any(term => title.ToUpper().Contains(term)))
+            if (title is null)
                 continue;
             
-            var rowAmount = row[3].ToString()?.Replace(".", "").Replace(",", ".");
-
-            if (!decimal.TryParse(rowAmount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+            var amountStr = row[3].ToString()?.Replace(".", "").Replace(",", ".");
+            
+            if (!decimal.TryParse(amountStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
                 continue;
-
+            
             var type = amount < 0 ? TransactionTypeEnum.Income : TransactionTypeEnum.Expense;
             
             transactions.Add(new TransactionCreationInputDto
@@ -74,11 +79,11 @@ public class ProcessBradescoCardBillCsvHandler(INotificationService notification
                 Installments = 1
             });
             
-            var progress = (rowIndex + 1) * 100 / totalRows;
+            progress = (rowIndex + 1) * 100 / totalRows;
             await notificationService.NotifyProgressAsync(connectionId,
                 new ProcessFileProgress(fileName, progress, "PROCESSING"));
         }
-        
+
         return transactions;
     }
 }

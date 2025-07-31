@@ -11,7 +11,7 @@ namespace VidaPositiva.Api.Handlers.Transaction.ProcessFileHandler.Csv;
 public sealed class ProcessBradescoAccountStatementCsvFileHandler(
     INotificationService notificationService) : ProcessFileHandler
 {
-    private readonly string[] _columnHeaders = ["Data", "Histórico", "Docto.", "Crédito (R$)", "Débito (R$)", "Saldo (R$)"];
+    private readonly string[] _columnHeaders = ["DATA", "HISTÓRICO", "DOCTO.", "CRÉDITO (R$)", "DÉBITO (R$)", "SALDO (R$)"];
     private const string RowTitleStop = "Total";
     private const string TransferTitle = "TRANSF";
     private const string PreviousBalanceTitle = "SALDO ANTERIOR";
@@ -22,7 +22,7 @@ public sealed class ProcessBradescoAccountStatementCsvFileHandler(
 
         var headerRowItems = headerRow.ItemArray
             .Where(i => !string.IsNullOrEmpty(i as string))
-            .Select(i => i!.ToString())
+            .Select(i => i!.ToString()?.ToUpper())
             .ToArray();
 
         var hasAllHeaders = _columnHeaders.All(h => headerRowItems.Contains(h));

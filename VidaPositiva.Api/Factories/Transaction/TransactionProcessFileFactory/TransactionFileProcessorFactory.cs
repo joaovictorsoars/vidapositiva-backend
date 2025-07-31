@@ -11,6 +11,7 @@ public class TransactionFileProcessorFactory(
         return fileExtension switch
         {
             ".csv" => new ProcessTransactionCsvFileStrategy(notificationService),
+            ".xls" => new ProcessTransactionExcelXlsFileStrategy(notificationService),
             _ => null
         };
     }
