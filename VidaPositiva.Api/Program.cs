@@ -7,6 +7,7 @@ using VidaPositiva.Api.OAuth.Extensions;
 using VidaPositiva.Api.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Migrations.Migrations;
 using VidaPositiva.Api.Entities;
@@ -93,6 +94,13 @@ builder.Services.AddScoped<ITransactionFileProcessorFactory, TransactionFileProc
 builder.Services.AddScoped<INotificationService, NotificationService>();
 #endregion
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -101,7 +109,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-
+app.UseForwardedHeaders();
 app.UseCors(policy =>
 {
     policy
