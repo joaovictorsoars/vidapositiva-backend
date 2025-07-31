@@ -25,7 +25,12 @@ public class ProcessTransactionCsvFileStrategy(
         var tables = dataset.Tables;
         var table = tables[0];
 
-        var bradescoAccountStatementFileHandler = new ProcessBradescoAccountStatementCsvFileHandler(notificationService);
+        var bradescoAccountStatementFileHandler =
+            new ProcessBradescoAccountStatementCsvFileHandler(notificationService);
+        var bradescoCardBillFileHandler = new ProcessBradescoCardBillCsvHandler(notificationService);
+
+        bradescoAccountStatementFileHandler
+            .SetNext(bradescoCardBillFileHandler);
 
         return await bradescoAccountStatementFileHandler.Handle(file.FileName, connectionId, table);
     }

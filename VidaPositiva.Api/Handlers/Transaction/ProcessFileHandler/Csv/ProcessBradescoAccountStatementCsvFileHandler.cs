@@ -20,9 +20,12 @@ public sealed class ProcessBradescoAccountStatementCsvFileHandler(
     {
         var headerRow = request.Rows[1];
 
-        var hasAllHeaders = headerRow.ItemArray
+        var headerRowItems = headerRow.ItemArray
             .Where(i => !string.IsNullOrEmpty(i as string))
-            .Select(i => i!.ToString()).All(i => _columnHeaders.Contains(i));
+            .Select(i => i!.ToString())
+            .ToArray();
+
+        var hasAllHeaders = _columnHeaders.All(h => headerRowItems.Contains(h));
 
         if (!hasAllHeaders)
         {
@@ -48,11 +51,11 @@ public sealed class ProcessBradescoAccountStatementCsvFileHandler(
             if (!isValidDate || isPreviousBalance || string.IsNullOrEmpty(title))
                 continue;
 
-            var incomeStr = row[3].ToString();
-            var expenseStr = row[4].ToString();
+            var incomeStr = row[3].ToString()?.Replace(".", "").Replace(",", ".");
+            var expenseStr = row[4].ToString()?.Replace(".", "").Replace(",", ".");
             
-            var isValidIncome = decimal.TryParse(incomeStr, NumberStyles.Any, new CultureInfo("pt-BR"), out var income);
-            var isValidExpense = decimal.TryParse(expenseStr, NumberStyles.Any, new CultureInfo("pt-BR"), out var expense);
+            var isValidIncome = decimal.TryParse(incomeStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var income);
+            var isValidExpense = decimal.TryParse(expenseStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var expense);
 
             if (!isValidIncome && !isValidExpense)
                 continue;
